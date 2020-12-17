@@ -59,7 +59,7 @@ def update_korea():
 
 sched.add_job(update_db,'cron', day_of_week='0-6', hour=10)
 sched.add_job(news_update, 'interval', hours=2)
-sched.add_job(update_msg,'cron', day_of_week='0-6', hours = 12)
+sched.add_job(update_msg,'cron', day_of_week='0-6', hour= 12)
 
 #sched.add_job(update_KoreaDB, 'cron', day_of_week='0-6', hour=13) # KoreaDB 오후 1시 업데이트
 sched.add_job(update_korea, 'cron', day_of_week='0-6', hour=13)
