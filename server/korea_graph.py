@@ -58,7 +58,7 @@ try:
     #plt.legend(prop = {'family' : font_name, 'size':15})
     plt.grid(True)
     #plt.savefig('CoronaBotDB/1.png', facecolor='#eeeeee', bbox_inches='tight')
-    plt.savefig('/static/korea_graph.jpg', facecolot = '#eeeeee', bbox_inches='tight')
+    plt.savefig('./static/korea_graph.jpg', facecolot = '#eeeeee', bbox_inches='tight')
 
 finally:
     cur.close()
