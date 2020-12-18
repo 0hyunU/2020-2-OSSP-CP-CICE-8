@@ -22,7 +22,7 @@ try:
     clear_list =[]
     for i in range(1, len(rows)):
         row = rows[i]
-        day = row[0][4:6] + "/" + row[0][6:]    # 날짜 mm/dd 형식으로 표시
+        day = row[0][4:6] + "/" + str(int(row[0][6:])-1)    # 날짜 mm/dd 형식으로 표시
         day_list.append(day)
         con_list.append(row[1])    # 증가된 확진자 수치
         clear_list.append(row[2])    # 증가된 완치자 수치
