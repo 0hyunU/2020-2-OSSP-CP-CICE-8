@@ -40,7 +40,6 @@ def update_db():
     print("GlobalDB 업데이트 진행중")
     update_GlobalDB()
     print("GlobalDB 업데이트 완료")
-    # 업데이트할 것들 여기에
 
 def update_msg():
     print("재난문자 업데이트 진행중")
@@ -53,16 +52,17 @@ sched = BackgroundScheduler({'apscheduler.timezone': 'Asia/Seoul'})
 
 def update_korea():
     print("koreadb 업데이트 진행중")
-    newkupdater() # 국내 코로나 정보 업데이트
-    import korea_graph # 국내 코로나 추이 그래프 업데이트
+    newkupdater()  # 국내 코로나 정보 업데이트
+    import korea_graph  # 국내 코로나 추이 그래프 업데이트
     print("koreadb 업데이트 완료")
 
-sched.add_job(update_db,'cron', day_of_week='0-6', hour=10)
-sched.add_job(news_update, 'interval', hours=2)
-sched.add_job(update_msg,'cron', day_of_week='0-6', hour= 12)
+sched.add_job(update_db,'cron', day_of_week='0-6', hour=10)  # 전세계 현황 매일 오전 10시 업데이트
+sched.add_job(news_update, 'interval', hours=2)  # 뉴스 2시간마다 업데이트
+sched.add_job(update_msg,'cron', day_of_week='0-6', hours = 12)  # 재난문자 매일 오후 12시 업데이트
+
 
 #sched.add_job(update_KoreaDB, 'cron', day_of_week='0-6', hour=13) # KoreaDB 오후 1시 업데이트
-sched.add_job(update_korea, 'cron', day_of_week='0-6', hour=13)
+sched.add_job(update_korea, 'cron', day_of_week='0-6', hour=13)  # 국내 현황 매일 오후 1시 업데이트
 
 sched.start()
 
