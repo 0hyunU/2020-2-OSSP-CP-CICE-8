@@ -13,54 +13,57 @@ DB_PATH = os.path.dirname(__file__) + '/CoronaBotDB'
 
 today =datetime.datetime.now()
 
+days_num = 7 # 받아오는 날짜 수
+
 def five_days_ago(today):
-    five = (today-datetime.timedelta(7)).strftime("%Y%m%d")
+    five = (today-datetime.timedelta(days_num)).strftime("%Y%m%d")
     return five
 
-key = 'RI5ekmQZaQtJcWF%2BFp%2FjIPg3kaXeWQj0MfyFVPynolhE9rUNQjg%2FCdWF1GkZe0UWS63SVaRd26nbQxZMqWGfKQ%3D%3D'
-url = f'http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson?serviceKey={key}&'
-queryParams = urlencode({ quote_plus('pageNo') : 1, quote_plus('numOfRows') : 10,quote_plus('startCreateDt') : five_days_ago(today),
-                        quote_plus('endCreateDt') : today.strftime("%Y%m%d")})
+def make_db():
+    key = 'RI5ekmQZaQtJcWF%2BFp%2FjIPg3kaXeWQj0MfyFVPynolhE9rUNQjg%2FCdWF1GkZe0UWS63SVaRd26nbQxZMqWGfKQ%3D%3D'
+    url = f'http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson?serviceKey={key}&'
+    queryParams = urlencode({ quote_plus('pageNo') : 1, quote_plus('numOfRows') : 10,quote_plus('startCreateDt') : five_days_ago(today),
+                            quote_plus('endCreateDt') : today.strftime("%Y%m%d")})
 
-url2 = url + queryParams
-response = urlopen(url2)
-results = response.read().decode("utf-8")
+    url2 = url + queryParams
+    response = urlopen(url2)
+    results = response.read().decode("utf-8")
 
-results_to_json = xmltodict.parse(results)
-data = json.loads(json.dumps(results_to_json))
+    results_to_json = xmltodict.parse(results)
+    data = json.loads(json.dumps(results_to_json))
 
-corona=data['response']['body']['items']['item']
+    corona=data['response']['body']['items']['item']
 
-Date=[]
-Cnt=[]
-clear_cnt=[]
-care_cnt=[]
-death_cnt=[]
-for i in corona:
-    Date.append(i['stateDt'])
-    Cnt.append(i['decideCnt'])
-    clear_cnt.append(i['clearCnt'])
-    care_cnt.append(i['careCnt'])
-    death_cnt.append(i['deathCnt'])
+    Date=[]
+    Cnt=[]
+    clear_cnt=[]
+    care_cnt=[]
+    death_cnt=[]
+    for i in corona:
+        Date.append(i['stateDt'])
+        Cnt.append(i['decideCnt'])
+        clear_cnt.append(i['clearCnt'])
+        care_cnt.append(i['careCnt'])
+        death_cnt.append(i['deathCnt'])
 
-df=pd.DataFrame([Date,Cnt,clear_cnt,care_cnt,death_cnt]).T
-df.columns=['Date','acc_cnt', 'clear_cnt', 'care_cnt', 'death_cnt']
-df=df.sort_values(by='Date', ascending=True)
+    df=pd.DataFrame([Date,Cnt,clear_cnt,care_cnt,death_cnt]).T
+    df.columns=['Date','acc_cnt', 'clear_cnt', 'care_cnt', 'death_cnt']
+    df=df.sort_values(by='Date', ascending=True)
 
-#날짜 별 확진자/사망자 수 구하기
-df['acc_cnt']=df['acc_cnt'].astype(int)
-df['death_cnt']=df['death_cnt'].astype(int)
-df['clear_cnt']=df['clear_cnt'].astype(int)
-df = df.drop_duplicates(['Date'], keep="last")
+    #날짜 별 확진자/사망자 수 구하기
+    df['acc_cnt']=df['acc_cnt'].astype(int)
+    df['death_cnt']=df['death_cnt'].astype(int)
+    df['clear_cnt']=df['clear_cnt'].astype(int)
+    df = df.drop_duplicates(['Date'], keep="last")
 
-df['확진자 수']=(df.acc_cnt-df.acc_cnt.shift()).fillna(0)
-df['사망자 수']=(df.death_cnt-df.death_cnt.shift()).fillna(0)
-df['완치자 수']=(df.clear_cnt-df.clear_cnt.shift()).fillna(0)
-df['acc_cnt']=df['acc_cnt'].astype(object)
-df['death_cnt']=df['death_cnt'].astype(object)
-df['clear_cnt']=df['clear_cnt'].astype(object)
+    df['확진자 수']=(df.acc_cnt-df.acc_cnt.shift()).fillna(0)
+    df['사망자 수']=(df.death_cnt-df.death_cnt.shift()).fillna(0)
+    df['완치자 수']=(df.clear_cnt-df.clear_cnt.shift()).fillna(0)
+    df['acc_cnt']=df['acc_cnt'].astype(object)
+    df['death_cnt']=df['death_cnt'].astype(object)
+    df['clear_cnt']=df['clear_cnt'].astype(object)
 
-print(df)
+    print(df)
 
 def create_db():
     con = sqlite3.connect(DB_PATH + '/newkorea.db')
@@ -92,6 +95,7 @@ def krefresh_db():
     con.close()
 
 def newkupdater(): # 업데이트 함수
+    make_db() # 데이터 받아오기
     krefresh_db() # 디비 clean
     input_db() # 다시 7개 넣기(일주일치)
 
