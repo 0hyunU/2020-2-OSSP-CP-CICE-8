@@ -10,9 +10,6 @@ import sqlite3
 import os
 
 DB_PATH = os.path.dirname(__file__) + '/CoronaBotDB'
-
-today =datetime.datetime.now()
-
 days_num = 7 # 받아오는 날짜 수
 
 def five_days_ago(today):
@@ -20,6 +17,9 @@ def five_days_ago(today):
     return five
 
 def make_db():
+
+    today = datetime.datetime.now()
+
     key = 'RI5ekmQZaQtJcWF%2BFp%2FjIPg3kaXeWQj0MfyFVPynolhE9rUNQjg%2FCdWF1GkZe0UWS63SVaRd26nbQxZMqWGfKQ%3D%3D'
     url = f'http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson?serviceKey={key}&'
     queryParams = urlencode({ quote_plus('pageNo') : 1, quote_plus('numOfRows') : 10,quote_plus('startCreateDt') : five_days_ago(today),
@@ -63,7 +63,7 @@ def make_db():
     df['death_cnt']=df['death_cnt'].astype(object)
     df['clear_cnt']=df['clear_cnt'].astype(object)
     print(df)
-    
+
     con = sqlite3.connect(DB_PATH + '/newkorea.db')
     cursor = con.cursor()
     length1 = df.shape[0]
